@@ -1,0 +1,51 @@
+{
+    "name": "itemvirtual/laravel-doctrine",
+    "description": "Doctrine Console Commands for Laravel framework",
+    "keywords": [
+        "itemvirtual",
+        "laravel-doctrine"
+    ],
+    "homepage": "https://github.com/itemvirtual/laravel-doctrine",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Sergio",
+            "email": "sergio@itemvirtual.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.1",
+        "doctrine/orm": "^2.8"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^4.0",
+        "phpunit/phpunit": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Itemvirtual\\LaravelDoctrine\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Itemvirtual\\LaravelDoctrine\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Itemvirtual\\LaravelDoctrine\\LaravelDoctrineServiceProvider"
+            ]
+        }
+    }
+}
