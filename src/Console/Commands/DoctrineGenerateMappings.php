@@ -6,12 +6,14 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Itemvirtual\LaravelDoctrine\Traits\DoctrineFunctions;
+use Itemvirtual\LaravelDoctrine\Traits\HelperFunctions;
 use Itemvirtual\LaravelDoctrine\Traits\ValidationFunctions;
 
 
 class DoctrineGenerateMappings extends Command
 {
     use DoctrineFunctions;
+    use HelperFunctions;
     use ValidationFunctions;
 
     /**
@@ -70,13 +72,11 @@ class DoctrineGenerateMappings extends Command
         }
 
         if (count($files)) {
-            $mappingsPath = str_replace(base_path() . '/', '', $destinationPath);
-            if (!$this->confirm('This action will overwrite your existing xml-mappings in <comment>' . $mappingsPath . '</comment>, Do you wish to continue?')) {
+            if (!$this->confirm('This action will overwrite your existing xml-mappings in <comment>' . $this->getRelativePath($destinationPath) . '</comment>, Do you wish to continue?')) {
                 return 0;
             }
         }
 
-        // orm:convert-mapping --from-database xml ./src/xml-mappings/ --force
         $parameters = [
             'to-type' => 'xml',
             'dest-path' => $destinationPath,

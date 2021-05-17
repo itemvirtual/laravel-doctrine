@@ -8,7 +8,6 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\Tools\DisconnectedClassMetadataFactory;
 use Doctrine\ORM\Tools\Setup;
-use Illuminate\Support\Facades\File;
 
 trait DoctrineFunctions
 {
@@ -76,7 +75,7 @@ trait DoctrineFunctions
 
     /**
      * Returns the Metadata to create Entities or update database
-     * depending wich $EntityManager is passed
+     * depending which $EntityManager is passed
      *
      * @param $EntityManager
      * @return \Doctrine\Persistence\Mapping\ClassMetadata[]
@@ -88,14 +87,4 @@ trait DoctrineFunctions
         return $ClassMetadataFactory->getAllMetadata();
     }
 
-    /**
-     * Create a .gitgnore file, ignoring all directory content, in the given path
-     * @param $path
-     */
-    private function addGitignoreFile($path)
-    {
-        if (!File::exists($path . '/.gitignore')) {
-            File::put($path . '/.gitignore', '*' . PHP_EOL . '!.gitignore');
-        }
-    }
 }

@@ -12,12 +12,14 @@ use Doctrine\ORM\Tools\EntityGenerator;
 use Doctrine\ORM\Tools\Export\Driver\AnnotationExporter;
 use Illuminate\Console\Command;
 use Itemvirtual\LaravelDoctrine\Traits\DoctrineFunctions;
+use Itemvirtual\LaravelDoctrine\Traits\HelperFunctions;
 use Itemvirtual\LaravelDoctrine\Traits\ValidationFunctions;
 
 
 class DoctrineConvertMapping extends Command
 {
     use DoctrineFunctions;
+    use HelperFunctions;
     use ValidationFunctions;
 
     /**
@@ -147,7 +149,7 @@ class DoctrineConvertMapping extends Command
         $exporter->setMetadata($metadata);
         $exporter->export();
 
-        $this->info('Exporting ' . $toType . ' mapping information to <comment>' . str_replace(base_path() . '/', '', $realDestPath) . '</comment>');
+        $this->info('Exporting ' . $toType . ' mapping information to <comment>' . $this->getRelativePath($realDestPath) . '</comment>');
 
         return 0;
     }

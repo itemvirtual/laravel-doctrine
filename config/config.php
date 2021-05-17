@@ -18,13 +18,13 @@ return [
     | Files path
     |--------------------------------------------------------------------------
     |
+    | Specify the entities namespace, leave it blank to generate
     | The absolute path to xml-mappings, entities and proxies files
     |
     */
-    'namespace' => 'caca',
+    'entities_namespace' => '',
     'entities_path' => base_path('database/doctrine/entities'),
     'xml_mappings_path' => base_path('database/doctrine/xml-mappings'),
-    // 'proxies_path' => base_path('database/doctrine/proxies'),
 
     /*
     |--------------------------------------------------------------------------

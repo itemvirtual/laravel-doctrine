@@ -6,12 +6,14 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Itemvirtual\LaravelDoctrine\Traits\DoctrineFunctions;
+use Itemvirtual\LaravelDoctrine\Traits\HelperFunctions;
 use Itemvirtual\LaravelDoctrine\Traits\ValidationFunctions;
 
 
 class DoctrineUpdate extends Command
 {
     use DoctrineFunctions;
+    use HelperFunctions;
     use ValidationFunctions;
 
     /**
@@ -110,7 +112,7 @@ class DoctrineUpdate extends Command
         if (config('laravel-doctrine.logging', null) && config('laravel-doctrine.save_logs', null)) {
             Log::channel('laravel-doctrine')->info(count($queries) . ' ' . $pluralization . ' executed');
             Log::channel('laravel-doctrine')->info(implode(PHP_EOL . '  ', $queries));
-            $this->line('Log saved in <comment>' . str_replace(base_path() . '/', '', storage_path('logs/laravel-doctrine-' . date('Y-m-d'))) . '.log</comment>');
+            $this->line('Log saved in <comment>' . $this->getRelativePath(storage_path('logs/laravel-doctrine-' . date('Y-m-d'))) . '.log</comment>');
         }
 
         return 0;
