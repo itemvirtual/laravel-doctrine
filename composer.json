@@ -17,7 +17,7 @@
     ],
     "require": {
         "php": "^7.1",
-        "doctrine/orm": "^2.8"
+        "doctrine/orm": "2.8.4"
     },
     "require-dev": {
         "orchestra/testbench": "^4.0",
