@@ -4,6 +4,7 @@ namespace Itemvirtual\LaravelDoctrine\Traits;
 
 use Illuminate\Support\Facades\File;
 
+
 trait HelperFunctions
 {
 

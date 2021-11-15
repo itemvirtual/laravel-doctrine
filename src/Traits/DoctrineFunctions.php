@@ -9,11 +9,12 @@ use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\Tools\DisconnectedClassMetadataFactory;
 use Doctrine\ORM\Tools\Setup;
 
+
 trait DoctrineFunctions
 {
 
     /**
-     * Create a Entity Manager for reading Entity files
+     * Create an Entity Manager for reading Entity files
      * @return EntityManager
      * @throws \Doctrine\DBAL\Exception
      * @throws \Doctrine\ORM\ORMException
@@ -49,7 +50,7 @@ trait DoctrineFunctions
     }
 
     /**
-     * Create a Entity Manager for reading XML files
+     * Create an Entity Manager for reading XML files
      *
      * @return EntityManager
      * @throws \Doctrine\ORM\ORMException
@@ -75,7 +76,7 @@ trait DoctrineFunctions
 
     /**
      * Returns the Metadata to create Entities or update database
-     * depending which $EntityManager is passed
+     * depending on which $EntityManager is passed
      *
      * @param $EntityManager
      * @return \Doctrine\Persistence\Mapping\ClassMetadata[]

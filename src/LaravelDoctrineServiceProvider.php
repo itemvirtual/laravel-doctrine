@@ -13,6 +13,7 @@ use Itemvirtual\LaravelDoctrine\Console\Commands\DoctrineGenerateEntities;
 use Itemvirtual\LaravelDoctrine\Console\Commands\DoctrineGenerateMappings;
 use Itemvirtual\LaravelDoctrine\Console\Commands\DoctrineUpdate;
 use Itemvirtual\LaravelDoctrine\Console\Commands\DoctrineValidate;
+use Itemvirtual\LaravelDoctrine\Console\Commands\MigrationsGenerate;
 
 class LaravelDoctrineServiceProvider extends ServiceProvider
 {
@@ -50,6 +51,8 @@ class LaravelDoctrineServiceProvider extends ServiceProvider
                 DoctrineClearQuery::class,
                 DoctrineClearResult::class,
                 DoctrineClear::class,
+                // generate migrations
+                MigrationsGenerate::class,
             ]);
         }
     }

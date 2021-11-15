@@ -2,6 +2,12 @@
 
 All notable changes to `laravel-doctrine` will be documented in this file
 
+## 1.0.3 - 2021-11-15
+### What's New
+Add default value 0 to boolean fields
+Generate migrations `tests/database/migrations` from an existing database.  
+Intended for testing purposes
+
 ## 1.0.2 - 2021-06-29
 ### What's New
 fixed doctrine/orm to version 2.8.4

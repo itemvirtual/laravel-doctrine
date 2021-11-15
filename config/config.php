@@ -53,7 +53,7 @@ return [
         'driver' => 'daily',
         'path' => storage_path('logs/laravel-doctrine.log'),
         'level' => env('LOG_LEVEL', 'debug'),
-        'days' => 1,
+        'days' => 14,
     ],
 
 ];

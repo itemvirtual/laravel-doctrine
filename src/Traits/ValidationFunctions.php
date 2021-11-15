@@ -12,7 +12,6 @@ trait ValidationFunctions
     private $mappingsDir;
     private $mappingsPath;
 
-
     public function validateDirectories()
     {
         try {

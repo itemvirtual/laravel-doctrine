@@ -1,8 +1,6 @@
 # Laravel Doctrine
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/itemvirtual/laravel-doctrine.svg?style=flat-square)](https://packagist.org/packages/itemvirtual/laravel-doctrine)
-[![Build Status](https://img.shields.io/travis/itemvirtual/laravel-doctrine/master.svg?style=flat-square)](https://travis-ci.org/itemvirtual/laravel-doctrine)
-[![Quality Score](https://img.shields.io/scrutinizer/g/itemvirtual/laravel-doctrine.svg?style=flat-square)](https://scrutinizer-ci.com/g/itemvirtual/laravel-doctrine)
 [![Total Downloads](https://img.shields.io/packagist/dt/itemvirtual/laravel-doctrine.svg?style=flat-square)](https://packagist.org/packages/itemvirtual/laravel-doctrine)
 
 Doctrine Console Commands for Laravel framework.  
@@ -45,7 +43,6 @@ Options:
   --table[=TABLE]   The database tables to be generated (multiple values allowed)
 ```
 
-
 #### · Validate mappings and database
 Check if the associations are defined correctly, and their mappings are in sync with the database.  
 You can remove all your entities before perform validating.
@@ -71,6 +68,7 @@ Options:
   -D, --dump-sql         Dumps generated SQL statements to the console (does not execute them)
   -R, --remove-entities  Delete current entities before generating new ones
 ```
+
 #### · Cache clear
 Sometimes you can get missing entity errors, deleting cached data can help to fix it.  
 
@@ -87,6 +85,26 @@ Options:
   --flush    If defined, cache entries will be flushed instead of deleted/invalidated
 ```
 
+#### · Generate migrations (for testing)
+For testing purposes, you will need your project migrations. You can generate it with the following command.  
+By default, they will be generated in `tests/database/migrations`
+``` bash
+php artisan doctrine:migrations-generate [destination/path]
+php artisan doctrine:migrations-generate --tables users,password_resets --ignore users,password_resets
+```
+Arguments:
+```
+  path    If defined, it will generate the files in the given path, by default
+```
+Options:
+```
+  -R, --remove                     Remove previous generated migration files
+  -O, --output                     View migrations package console output
+  -S, --single-file[=SINGLE-FILE]  Generate all migrations in a single file [default: "true"]
+  -T, --tables[=TABLES]            A list of Tables or Views you wish to Generate Migrations separated by comma: users,products,labels
+  -I, --ignore[=IGNORE]            A list of Tables or Views you wish to ignore, separated by comma: users,products,labels
+```
+
 ### Available commands for the "doctrine" namespace
 ``` bash
   doctrine:clear-cache           Clear metadata, query and result cache of the various cache drivers
@@ -99,6 +117,7 @@ Options:
   doctrine:remove-entities       Remove all entities
   doctrine:update                Update the database (or dump SQL) based on the entities information
   doctrine:validate              Validate mappings and synchronization with the database
+  doctrine:migrations-generate   Generate laravel migration files from database 
 ```
 You can see the arguments and options of each of them with the help command
 ```

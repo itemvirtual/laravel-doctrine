@@ -17,7 +17,11 @@
         <option name="fixed"/>
       </options>
     </field>
-    <field name="attempts" type="boolean" column="attempts" nullable="false"/>
+    <field name="attempts" type="integer" column="attempts" nullable="false">
+      <options>
+        <option name="unsigned">1</option>
+      </options>
+    </field>
     <field name="reservedAt" type="integer" column="reserved_at" nullable="true">
       <options>
         <option name="unsigned">1</option>
