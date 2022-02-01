@@ -145,3 +145,4 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 ## Doctrine XML Mapping documentation and examples
 
 [Doctrine documentation](https://www.doctrine-project.org/projects/doctrine-orm/en/2.8/reference/xml-mapping.html)
+[Doctrine Types](https://www.doctrine-project.org/projects/doctrine-dbal/en/2.8/reference/types.html)

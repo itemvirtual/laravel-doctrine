@@ -68,25 +68,29 @@ class DoctrineUpdate extends Command
         // Generate entities
         $this->call('doctrine:generate-entities');
 
-        $entityManager = $this->getAnnotationEntityManager();
+        // $entityManager = $this->getAnnotationEntityManager();
+        // $metadata = $this->getMetaData($entityManager);
+
+        $entityManager = $this->getXMLEntityManager();
         $metadata = $this->getMetaData($entityManager);
 
         // Issue with type boolean default value 0 (missing in annotations)
-        foreach ($metadata as $k_data => $data) {
-            foreach ($data->fieldMappings as $k_mapping => $mapping) {
-                if ($mapping['type'] == "boolean") {
-                    if (!array_key_exists('nullable', $mapping) || !$mapping['nullable']) {
-                        if (!array_key_exists('options', $mapping)) {
-                            $metadata[$k_data]->fieldMappings[$k_mapping]['options']['default'] = '0';
-                        } else {
-                            if (!array_key_exists('default', $mapping['options'])) {
-                                $metadata[$k_data]->fieldMappings[$k_mapping]['options']['default'] = '0';
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        // foreach ($metadata as $k_data => $data) {
+        //     foreach ($data->fieldMappings as $k_mapping => $mapping) {
+        //         $mappingTypes = ['boolean', 'smallint'];
+        //         if (in_array($mapping['type'], $mappingTypes)) {
+        //             if (!array_key_exists('nullable', $mapping) || !$mapping['nullable']) {
+        //                 if (!array_key_exists('options', $mapping)) {
+        //                     $metadata[$k_data]->fieldMappings[$k_mapping]['options']['default'] = '0';
+        //                 } else {
+        //                     if (!array_key_exists('default', $mapping['options'])) {
+        //                         $metadata[$k_data]->fieldMappings[$k_mapping]['options']['default'] = '0';
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         if (empty($metadata)) {
             $this->info('No mapping information to process.');
