@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "php": "^7.1",
+        "php": "^7.1|^8.0",
         "doctrine/orm": "2.8.4",
         "kitloong/laravel-migrations-generator": "^5.1"
     },

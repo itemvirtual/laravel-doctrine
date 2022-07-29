@@ -2,20 +2,25 @@
 
 All notable changes to `laravel-doctrine` will be documented in this file
 
+## 1.0.4 - 2022-07-29
+
+Add php 8 to composer requirements
+
 ## 1.0.3 - 2021-11-15
-### What's New
-Add default value 0 to boolean fields
-Generate migrations `tests/database/migrations` from an existing database.  
+
+Add default value 0 to boolean fields Generate migrations `tests/database/migrations` from an existing database.  
 Intended for testing purposes
 
 ## 1.0.2 - 2021-06-29
-### What's New
+
 fixed doctrine/orm to version 2.8.4
 
 ## 1.0.1 - 2021-05-17
-### What's New
+
 Add namespaces to generated entities, with config parameter
+
 ### Improvements
+
 Reformat Traits
 
 ## 1.0.0 - 2021-04-21
