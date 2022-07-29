@@ -3,7 +3,6 @@
 namespace Itemvirtual\LaravelDoctrine\Traits;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\Tools\DisconnectedClassMetadataFactory;
@@ -33,14 +32,13 @@ trait DoctrineFunctions
             'dbname' => config('laravel-doctrine.db_database'),
         );
 
-        $cache = new ArrayCache();
+        $cache = new \Symfony\Component\Cache\Adapter\PhpFilesAdapter('doctrine_queries');
 
         $reader = new AnnotationReader();
         $driver = new AnnotationDriver($reader, $paths);
 
         $config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode);
-        $config->setMetadataCacheImpl($cache);
-        $config->setQueryCacheImpl($cache);
+        $config->setResultCache($cache);
         $config->setMetadataDriverImpl($driver);
 
         $entityManager = EntityManager::create($dbParams, $config);

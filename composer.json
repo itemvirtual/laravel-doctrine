@@ -16,9 +16,11 @@
         }
     ],
     "require": {
-        "php": "^7.1|^8.0",
-        "doctrine/orm": "2.8.4",
-        "kitloong/laravel-migrations-generator": "^5.1"
+        "php": "^7.1 || ^8.0",
+        "doctrine/annotations": "^1.13",
+        "doctrine/orm": "^2.12.3",
+        "kitloong/laravel-migrations-generator": "^5.1",
+        "symfony/cache": "^5.3"
     },
     "require-dev": {
         "orchestra/testbench": "^4.0",

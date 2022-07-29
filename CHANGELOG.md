@@ -2,6 +2,12 @@
 
 All notable changes to `laravel-doctrine` will be documented in this file
 
+## 1.0.5 - 2022-07-29
+
+update doctrine/orm to 2.12.3  
+add doctrine/annotations  
+add symfony/cache  
+
 ## 1.0.4 - 2022-07-29
 
 Add php 8 to composer requirements
