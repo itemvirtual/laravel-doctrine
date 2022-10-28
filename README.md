@@ -123,6 +123,22 @@ You can see the arguments and options of each of them with the help command
 ```
 php artisan -help <command>
 ```
+### utf8mb4
+
+To change the character set and collation of a table, add this `options` to the `entity`
+```xml
+<options>
+    <option name="collate">utf8mb4_unicode_ci</option>
+    <option name="charset">utf8mb4</option>
+</options>
+```
+#### Problems with mysql 5.7
+
+mysql versions prior to 5.7.7 may throw an error 
+"_Specified key was too long; max key length is 767 bytes_"  
+You must verify that any column of type `string` and `unique=true` must set its maximum `length="190"`  
+
+**Important, check the indexes**
 
 ### Changelog
 
