@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-doctrine` will be documented in this file
 
+## 1.0.6 - 2023-03-14
+
+Upgrade for laravel 10 
+
 ## 1.0.5 - 2022-07-29
 
 update doctrine/orm to 2.12.3  
