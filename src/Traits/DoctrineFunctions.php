@@ -30,6 +30,7 @@ trait DoctrineFunctions
             'user' => config('laravel-doctrine.db_username'),
             'password' => config('laravel-doctrine.db_password'),
             'dbname' => config('laravel-doctrine.db_database'),
+            'charset' => config('laravel-doctrine.db_charset'),
         );
 
         $cache = new \Symfony\Component\Cache\Adapter\PhpFilesAdapter('doctrine_queries');

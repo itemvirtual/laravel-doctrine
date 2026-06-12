@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-doctrine` will be documented in this file
 
+## 1.0.7 - 2026-06-12
+
+Add DB_CHARSET config 
+
 ## 1.0.6 - 2023-03-14
 
 Upgrade for laravel 10 

@@ -39,6 +39,7 @@ return [
     'db_username' => env('DB_USERNAME', ''),
     'db_password' => env('DB_PASSWORD', ''),
     'db_database' => env('DB_DATABASE', ''),
+    'db_charset' => env('DB_CHARSET', 'utf8mb4'),
 
     /*
     |--------------------------------------------------------------------------
