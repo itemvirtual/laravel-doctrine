@@ -2,15 +2,15 @@
 
 namespace Itemvirtual\LaravelDoctrine\Console\Commands;
 
-use Doctrine\ORM\Tools\SchemaValidator;
 use Illuminate\Console\Command;
-use Itemvirtual\LaravelDoctrine\Traits\DoctrineFunctions;
+use Itemvirtual\LaravelDoctrine\Schema\ConnectionFactory;
+use Itemvirtual\LaravelDoctrine\Schema\SchemaBuilder;
+use Itemvirtual\LaravelDoctrine\Schema\XmlMappingReader;
 use Itemvirtual\LaravelDoctrine\Traits\ValidationFunctions;
-
+use RuntimeException;
 
 class DoctrineValidate extends Command
 {
-    use DoctrineFunctions;
     use ValidationFunctions;
 
     /**
@@ -18,7 +18,7 @@ class DoctrineValidate extends Command
      *
      * @var string
      */
-    protected $signature = 'doctrine:validate {--R|remove-entities : Delete current entities before generating new ones}';
+    protected $signature = 'doctrine:validate';
 
     /**
      * The console command description.
@@ -28,56 +28,45 @@ class DoctrineValidate extends Command
     protected $description = 'Validate mappings and synchronization with the database';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return mixed
-     * @throws \Doctrine\ORM\ORMException
      */
     public function handle()
     {
-        /**
-         * Validate entities and xml-mappings configuration
-         */
-        if (!$this->validateDirectories()) {
+        if (!$this->validateMappingsPath()) {
             return 0;
         }
-
-        $removeEntities = $this->option('remove-entities');
-
-        if ($removeEntities) {
-            $this->call('doctrine:remove-entities');
-        }
-
-        // Generate entities
-        $this->call('doctrine:generate-entities');
-
-        $entityManager = $this->getAnnotationEntityManager();
-
-        $schemaValidator = new SchemaValidator($entityManager);
 
         try {
-            $errors = $schemaValidator->validateMapping();
-            foreach ($errors as $className => $errorMessages) {
-                $this->error('The entity-class ' . $className . ' mapping is invalid');
-            }
-        } catch (\Exception $exception) {
-            $this->error($exception->getMessage());
+            $entities = (new XmlMappingReader())->read(config('laravel-doctrine.xml_mappings_path'));
+        } catch (RuntimeException $exception) {
+            $this->error('The mapping files are invalid: ' . $exception->getMessage());
             return 0;
         }
 
-        $synced = $schemaValidator->schemaInSyncWithMetadata();
-        if (!$synced) {
-            $this->warn('The database schema is not in sync with the current mapping file.');
+        if (empty($entities)) {
+            $this->info('No mapping information to process.');
+            return 0;
+        }
+
+        $connection = ConnectionFactory::create();
+        $schemaManager = $connection->createSchemaManager();
+
+        try {
+            $targetSchema = (new SchemaBuilder())->build($entities, ConnectionFactory::schemaConfig($connection));
+        } catch (RuntimeException $exception) {
+            $this->error('The mapping files are invalid: ' . $exception->getMessage());
+            return 0;
+        }
+
+        $this->info('The mapping files are valid.');
+
+        $currentSchema = $schemaManager->introspectSchema();
+        $diff = $schemaManager->createComparator()->compareSchemas($currentSchema, $targetSchema);
+
+        if (!$diff->isEmpty()) {
+            $this->warn('The database schema is not in sync with the current mapping files.');
         } else {
             $this->info('The database schema is in sync with the mapping files.');
         }

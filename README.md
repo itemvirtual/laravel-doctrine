@@ -3,146 +3,233 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/itemvirtual/laravel-doctrine.svg?style=flat-square)](https://packagist.org/packages/itemvirtual/laravel-doctrine)
 [![Total Downloads](https://img.shields.io/packagist/dt/itemvirtual/laravel-doctrine.svg?style=flat-square)](https://packagist.org/packages/itemvirtual/laravel-doctrine)
 
-Doctrine Console Commands for Laravel framework.  
-This package is just to keep your database in sync (instead of migrations).  
-Update, validate and generate xml-mappings from the database.
+Doctrine console commands for the Laravel framework.
+
+This package keeps your database in sync with your Doctrine xml-mappings, as an alternative to migrations.
+It can update and validate the database against the mappings, and generate xml-mappings from an existing database.
+
+Since v2 the package only depends on `doctrine/dbal`. Your `database/doctrine/xml-mappings/*.dcm.xml` files are
+read directly and compared against the current database schema; **no entity classes are generated anymore**.
+
+## Table of contents
+
+- [Installation](#installation)
+- [Getting started](#getting-started)
+- [Commands](#commands)
+- [Generating Laravel migrations](#generating-laravel-migrations)
+- [Configuration](#configuration)
+- [Supported xml-mapping elements](#supported-xml-mapping-elements)
+- [Troubleshooting](#troubleshooting)
+- [References](#references)
 
 ## Installation
 
-You can install the package via composer:
+Install the package via composer
 
 ``` bash
 composer require itemvirtual/laravel-doctrine
 ```
 
-In order to edit the default configuration you may execute: (with `--force` option to update)
-``` bash
+Publish the configuration file (add `--force` to overwrite an existing one):
+
+```bash
 php artisan vendor:publish --provider="Itemvirtual\LaravelDoctrine\LaravelDoctrineServiceProvider" --tag=config
 ```
 
-Laravel comes with some predefined migrations, you can put them in place with this publish
-``` bash
+Laravel ships with some predefined migrations. You can put them in place with:
+
+```bash
 php artisan vendor:publish --provider="Itemvirtual\LaravelDoctrine\LaravelDoctrineServiceProvider" --tag=laravel_default_migrations
 ```
 
-## Usage
+## Getting started
 
-#### · Generate xml-mappings from database
-> This command is only useful when you have an existing database, It should not be necessary for you to call this method multiple times
+1. Create your xml-mappings in `database/doctrine/xml-mappings`, or generate them from an existing database:
 
-You can provide the destination path where the generated files will be saved.  
-You also have the option to only generate the mappings for certain tables.
+```bash
+php artisan doctrine:generate-mappings
+```
+
+2. Preview the SQL that would be executed to sync the database:
+
+```bash
+php artisan doctrine:update --dump-sql
+```
+
+3. Apply the changes:
+
+``` bash
+php artisan doctrine:update
+```
+
+4. Check that mappings and database are in sync:
+
+``` bash
+php artisan doctrine:validate
+```
+
+## Commands
+
+| Command                        | Description                                                     |
+|--------------------------------|-----------------------------------------------------------------|
+| `doctrine:generate-mappings`   | Generate xml-mappings from your database                        |
+| `doctrine:update`              | Update the database (or dump the SQL) based on the xml-mappings |
+| `doctrine:validate`            | Validate mappings and their synchronization with the database   |
+| `doctrine:migrations-generate` | Generate Laravel migration files from the database              |
+
+Run `php artisan help <command>` to see all the arguments and options of a command.
+
+### doctrine:generate-mappings
+
+Generate xml-mappings from an existing database.
+
+> This command is only useful when starting from an existing database. You should not need to run it more than once.
 
 ``` bash
 php artisan doctrine:generate-mappings [--path=destination/path/to/xml-mappings] [--table=<table_name>]+
-php artisan doctrine:generate-mappings --path=database/doctrine/xml-mappings --table=ursers --table=password_resets
-```
-Options:
-```
-  --path[=PATH]     The path where your xml-mapping files will be generated
-  --table[=TABLE]   The database tables to be generated (multiple values allowed)
 ```
 
-#### · Validate mappings and database
-Check if the associations are defined correctly, and their mappings are in sync with the database.  
-You can remove all your entities before perform validating.
+Example:
+
+```bash
+php artisan doctrine:generate-mappings --path=database/doctrine/xml-mappings --table=users --table=password_resets
+```
+
+Options:
+
+```
+--path[=PATH]     The path where your xml-mapping files will be generated
+--table[=TABLE]   The database tables to be generated (multiple values allowed)
+```
+
+### doctrine:update
+
+Compare the xml-mappings against the current database schema and run the resulting SQL, or preview it without
+running it.
 
 ``` bash
-php artisan doctrine:validate [-R | --remove-entities]
-```
-Options:
-```
-  -R, --remove-entities  Delete current entities before generating new ones
+php artisan doctrine:update [-D | --dump-sql]
 ```
 
-#### · Update database
-Run the queries to update your database or preview them without querying.  
-You can remove all of your entities before upgrading.  
-Every time you run this command, `doctrine:generate-entities` is called
-``` bash
-php artisan doctrine:update [-D | --dump-sql] [-R | --remove-entities]
-php artisan doctrine:update -DR
-```
 Options:
+
 ```
-  -D, --dump-sql         Dumps generated SQL statements to the console (does not execute them)
-  -R, --remove-entities  Delete current entities before generating new ones
+-D, --dump-sql    Dump the generated SQL statements to the console (does not execute them)
 ```
 
-#### · Cache clear
-Sometimes you can get missing entity errors, deleting cached data can help to fix it.  
+### doctrine:validate
+
+Check that the xml-mapping files are well formed and in sync with the database.
 
 ``` bash
-php artisan doctrine:clear-cache [--flush]
-
-# This command will run these three commands at once, you can run them separately if you want 
-php artisan doctrine:clear-cache:metadata [--flush]
-php artisan doctrine:clear-cache:query [--flush]
-php artisan doctrine:clear-cache:result [--flush]
-```
-Options:
-```
-  --flush    If defined, cache entries will be flushed instead of deleted/invalidated
+php artisan doctrine:validate
 ```
 
-#### · Generate migrations (for testing)
-For testing purposes, you will need your project migrations. You can generate it with the following command.  
-By default, they will be generated in `tests/database/migrations`
+## Generating Laravel migrations
+
+`doctrine:migrations-generate` creates Laravel migration files from the current database. It is mainly used to
+build migrations for your test suite, or to move away from this package to plain Laravel migrations.
+
 ``` bash
-php artisan doctrine:migrations-generate [destination/path]
-php artisan doctrine:migrations-generate --tables users,password_resets --ignore users,password_resets
+php artisan doctrine:migrations-generate [path] [options]
 ```
+
 Arguments:
+
 ```
-  path    If defined, it will generate the files in the given path, by default
+path    Destination path for the generated files [default: tests/database/migrations]
 ```
+
 Options:
+
 ```
-  -R, --remove                     Remove previous generated migration files
-  -O, --output                     View migrations package console output
-  -S, --single-file[=SINGLE-FILE]  Generate all migrations in a single file [default: "true"]
-  -T, --tables[=TABLES]            A list of Tables or Views you wish to Generate Migrations separated by comma: users,products,labels
-  -I, --ignore[=IGNORE]            A list of Tables or Views you wish to ignore, separated by comma: users,products,labels
+-R, --remove                     Remove previously generated migration files
+-O, --output                     Show the migrations package console output
+-S, --single-file[=SINGLE-FILE]  Generate all migrations in a single file [default: "false"]
+-M, --merge-foreign-keys         Merge each table's foreign keys into its own create-table migration instead 
+                                 of a separate "add_foreign_keys_to_..." file. Has no effect with --single-file
+--date[=DATE]                    Create migrations with the given date/time [default: today at midnight]
+-T, --tables[=TABLES]            Comma-separated list of tables or views to generate: users,products,labels
+-I, --ignore[=IGNORE]            Comma-separated list of tables or views to ignore: users,products,labels
 ```
 
-### Available commands for the "doctrine" namespace
+### Single-file migration for testing
+
+Squash everything into a single file:
+
+```bash
+php artisan doctrine:migrations-generate tests/database/migrations --single-file=true --date="2020-01-01 00:00:00"
+```
+
+### Per-table migrations
+
+Use `--merge-foreign-keys` to keep each table's foreign keys in its own migration instead of separate
+`add_foreign_keys_to_...` files. This is the option to use if you want to drop this package in favor of plain
+Laravel migrations:
+
 ``` bash
-  doctrine:clear-cache           Clear metadata, query and result cache of the various cache drivers
-  doctrine:clear-cache:metadata  Clear all metadata cache of the various cache drivers
-  doctrine:clear-cache:query     Clear all query cache of the various cache drivers
-  doctrine:clear-cache:result    Clear all result cache of the various cache drivers
-  doctrine:convert-mapping       Convert mapping information between supported formats
-  doctrine:generate-entities     Generate entity classes and method stubs from your mapping information (xml-mappings)
-  doctrine:generate-mappings     Generate xml-mappings from your database
-  doctrine:remove-entities       Remove all entities
-  doctrine:update                Update the database (or dump SQL) based on the entities information
-  doctrine:validate              Validate mappings and synchronization with the database
-  doctrine:migrations-generate   Generate laravel migration files from database 
+php artisan doctrine:migrations-generate database/migrations --merge-foreign-keys
 ```
-You can see the arguments and options of each of them with the help command
+
+Tables are reordered so the result is safe to run with `php artisan migrate`. Only genuinely circular foreign keys
+are left in a separate migration.
+
+### Registering the migrations without running them
+
+Before generating anything, the command asks whether to register the new files in the `migrations` table —
+useful since the database already has this schema, so actually running them would fail. Each file gets its own
+batch number, so they can be rolled back one at a time. If the table already has entries, it also asks whether
+to truncate it first.
+
+## Configuration
+
+All options live in `config/laravel-doctrine.php`, published during [installation](#installation).
+
+### Ignoring tables
+
+If your database has tables that are not managed by this package's xml-mappings (for example, tables owned by
+another package), set `schema_filter` to a regex matching their names so that `doctrine:update` never proposes to
+drop them:
+
+```php
+'schema_filter' => '/^(spatial_ref_sys)$/',
 ```
-php artisan -help <command>
-```
-### utf8mb4
 
-To change the character set and collation of a table, add this `options` to the `entity`
-```xml
-<options>
-    <option name="collate">utf8mb4_unicode_ci</option>
-    <option name="charset">utf8mb4</option>
-</options>
-```
-#### Problems with mysql 5.7
+### Charset and collation
 
-mysql versions prior to 5.7.7 may throw an error 
-"_Specified key was too long; max key length is 767 bytes_"  
-You must verify that any column of type `string` and `unique=true` must set its maximum `length="190"`  
+`doctrine:update` derives each table's default charset from `db_charset` (`utf8mb4` by default) and its default
+collation from the collation already used by most of the existing tables in the database, so newly created
+tables match the rest of your schema without any per-entity configuration.
 
-**Important, check the indexes**
+## Supported xml-mapping elements
 
-### Changelog
+- `<entity name table>`, `<id>` with `<generator strategy="IDENTITY"/>`
+- `<field>` types: `bigint`, `integer`, `smallint`, `boolean`, `string`, `text`, `json`, `date`, `datetime`,
+  `time`, `decimal`
+- `<field>` attributes: `column`, `length`, `nullable`, `unique`, `precision`, `scale`
+- `<options>`: `default`, `unsigned`, `fixed`, `comment`
+- `<indexes>` / `<unique-constraints>`
+- `<many-to-one>` with `<join-column>` / `<join-columns>` (column + foreign key; type and unsigned are taken from
+  the target entity's id)
+- `<many-to-many>` with `<join-table>` (pivot table with a composite primary key and two foreign keys)
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+## Troubleshooting
+
+### MySQL prior to 5.7.7: "Specified key was too long"
+
+MySQL versions prior to 5.7.7 may throw the error _"Specified key was too long; max key length is 767 bytes"_.
+
+Any `string` column with `unique="true"` must set a maximum `length="190"`. The same limit applies to `string`
+columns used in indexes, so review your indexes as well.
+
+## References
+
+- [Doctrine XML Mapping](https://www.doctrine-project.org/projects/doctrine-orm/en/3.7/reference/xml-mapping.html)
+- [Doctrine DBAL Types](https://www.doctrine-project.org/projects/doctrine-dbal/en/4.4/reference/types.html)
+
+## Changelog
+
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
 ## Contributing
 
@@ -157,8 +244,3 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-## Doctrine XML Mapping documentation and examples
-
-[Doctrine documentation](https://www.doctrine-project.org/projects/doctrine-orm/en/2.8/reference/xml-mapping.html)
-[Doctrine Types](https://www.doctrine-project.org/projects/doctrine-dbal/en/2.8/reference/types.html)

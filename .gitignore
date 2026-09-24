@@ -1,8 +1,21 @@
 .DS_Store
-.idea
+*Zone.Identifier
+
+/.claude
+/.codex
+/.cursor/
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
 
 build
 composer.lock
 docs
 vendor
 coverage
+
+# ----------------------- local shit ----------------------- #
+remember.txt
+_docs

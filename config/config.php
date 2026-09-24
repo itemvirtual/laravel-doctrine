@@ -4,27 +4,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Development mode
-    |--------------------------------------------------------------------------
-    |
-    | If set to true caching is done in memory with the ArrayCache. Proxy objects are recreated on every request.
-    | If it's false, use the systems temporary directory
-    |
-    */
-    'development_mode' => false,
-
-    /*
-    |--------------------------------------------------------------------------
     | Files path
     |--------------------------------------------------------------------------
     |
-    | Specify the entities namespace, leave it blank to generate
-    | The absolute path to xml-mappings, entities and proxies files
+    | The absolute path to your xml-mappings files
     |
     */
-    'entities_namespace' => '',
-    'entities_path' => base_path('database/doctrine/entities'),
     'xml_mappings_path' => base_path('database/doctrine/xml-mappings'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Schema filter
+    |--------------------------------------------------------------------------
+    |
+    | Optional regex of table names to ignore, both when reading the current database schema and when
+    | comparing it against the xml-mappings. Useful to prevent doctrine:update from proposing to drop
+    | tables that are not managed by this package. Example: '/^(spatial_ref_sys|other_table)$/'
+    |
+    */
+    'schema_filter' => null,
 
     /*
     |--------------------------------------------------------------------------
@@ -55,6 +53,7 @@ return [
         'path' => storage_path('logs/laravel-doctrine.log'),
         'level' => env('LOG_LEVEL', 'debug'),
         'days' => 14,
+        'replace_placeholders' => true,
     ],
 
 ];

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="Sessions" table="sessions">
+        <indexes>
+            <index name="sessions_user_id_index" columns="user_id"/>
+            <index name="sessions_last_activity_index" columns="last_activity"/>
+        </indexes>
+        <id name="id" type="string" column="id" length="255"/>
+        <field name="userId" type="bigint" column="user_id" nullable="true">
+            <options>
+                <option name="unsigned">true</option>
+            </options>
+        </field>
+        <field name="ipAddress" type="string" column="ip_address" length="45" nullable="true"/>
+        <field name="userAgent" type="text" column="user_agent" length="65535" nullable="true"/>
+        <field name="payload" type="text" column="payload" length="4294967295" nullable="false"/>
+        <field name="lastActivity" type="integer" column="last_activity" nullable="false"/>
+    </entity>
+</doctrine-mapping>

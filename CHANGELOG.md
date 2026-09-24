@@ -2,6 +2,12 @@
 
 All notable changes to `laravel-doctrine` will be documented in this file
 
+## 2.0.0 - 2026-09-24
+
+Rewrite on doctrine/dbal ^4.2, drop doctrine/orm, doctrine/annotations and symfony/cache  
+xml-mappings are read and compared directly, no more entity generation  
+remove doctrine:generate-entities, doctrine:remove-entities, doctrine:convert-mapping, doctrine:clear-cache*
+
 ## 1.0.7 - 2026-06-12
 
 Add DB_CHARSET config 
