@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
-    <entity name="Migrations" table="migrations">
-        <id name="id" type="integer" column="id">
+    <entity name="Tags" table="tags">
+        <id name="id" type="bigint" column="id">
             <generator strategy="IDENTITY"/>
-            <options>
-                <option name="unsigned">true</option>
-            </options>
         </id>
-        <field name="migration" type="string" column="migration" length="255" nullable="false"/>
-        <field name="batch" type="integer" column="batch" nullable="false"/>
+        <field name="name" type="string" column="name" length="255" nullable="false"/>
+        <many-to-many field="posts" target-entity="Posts" mapped-by="tags"/>
     </entity>
 </doctrine-mapping>

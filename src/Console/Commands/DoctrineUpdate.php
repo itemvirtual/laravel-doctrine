@@ -2,17 +2,16 @@
 
 namespace Itemvirtual\LaravelDoctrine\Console\Commands;
 
-use Doctrine\ORM\Tools\SchemaTool;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-use Itemvirtual\LaravelDoctrine\Traits\DoctrineFunctions;
+use Itemvirtual\LaravelDoctrine\Schema\ConnectionFactory;
+use Itemvirtual\LaravelDoctrine\Schema\SchemaBuilder;
+use Itemvirtual\LaravelDoctrine\Schema\XmlMappingReader;
 use Itemvirtual\LaravelDoctrine\Traits\HelperFunctions;
 use Itemvirtual\LaravelDoctrine\Traits\ValidationFunctions;
 
-
 class DoctrineUpdate extends Command
 {
-    use DoctrineFunctions;
     use HelperFunctions;
     use ValidationFunctions;
 
@@ -21,87 +20,49 @@ class DoctrineUpdate extends Command
      *
      * @var string
      */
-    protected $signature = 'doctrine:update 
-                            {--D|dump-sql : Dumps generated SQL statements to the console (does not execute them)} 
-                            {--R|remove-entities : Delete current entities before generating new ones}';
+    protected $signature = 'doctrine:update
+                            {--D|dump-sql : Dumps generated SQL statements to the console (does not execute them)}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Update the database (or dump SQL) based on the entities information';
-
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
+    protected $description = 'Update the database (or dump SQL) based on the xml-mappings information';
 
     /**
      * Execute the console command.
      *
      * @return mixed
      */
-
-
     public function handle()
     {
-        /**
-         * Validate entities and xml-mappings configuration
-         */
-        if (!$this->validateDirectories()) {
+        if (!$this->validateMappingsPath()) {
             return 0;
         }
 
-        $isDump = $this->option('dump-sql');
-        $removeEntities = $this->option('remove-entities');
+        $entities = (new XmlMappingReader())->read(config('laravel-doctrine.xml_mappings_path'));
 
-        if ($removeEntities) {
-            $this->call('doctrine:remove-entities');
-        }
-
-        // Generate entities
-        $this->call('doctrine:generate-entities');
-
-        $entityManager = $this->getAnnotationEntityManager();
-        $metadata = $this->getMetaData($entityManager);
-
-        // Issue with type boolean default value 0 (missing in annotations)
-        foreach ($metadata as $k_data => $data) {
-            foreach ($data->fieldMappings as $k_mapping => $mapping) {
-                $mappingTypes = ['boolean', 'smallint'];
-                if (in_array($mapping['type'], $mappingTypes)) {
-                    if (!array_key_exists('nullable', $mapping) || !$mapping['nullable']) {
-                        if (!array_key_exists('options', $mapping)) {
-                            $metadata[$k_data]->fieldMappings[$k_mapping]['options']['default'] = '0';
-                        } else {
-                            if (!array_key_exists('default', $mapping['options'])) {
-                                $metadata[$k_data]->fieldMappings[$k_mapping]['options']['default'] = '0';
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (empty($metadata)) {
+        if (empty($entities)) {
             $this->info('No mapping information to process.');
             return 0;
         }
 
-        $schemaTool = new SchemaTool($entityManager);
+        $connection = ConnectionFactory::create();
+        $schemaManager = $connection->createSchemaManager();
 
-        $queries = $schemaTool->getUpdateSchemaSql($metadata, false);
+        $currentSchema = $schemaManager->introspectSchema();
+        $targetSchema = (new SchemaBuilder())->build($entities, ConnectionFactory::schemaConfig($connection));
+
+        $diff = $schemaManager->createComparator()->compareSchemas($currentSchema, $targetSchema);
+        $queries = $connection->getDatabasePlatform()->getAlterSchemaSQL($diff);
 
         if (empty($queries)) {
-            $this->info('Nothing to update. your database is already in sync with the current entity metadata.');
+            $this->info('Nothing to update. your database is already in sync with the current xml-mappings.');
             return 0;
         }
+
+        $isDump = $this->option('dump-sql');
 
         if ($isDump) {
             $pluralization = (count($queries) > 1) ? 'queries will be' : 'query will be';
@@ -120,7 +81,9 @@ class DoctrineUpdate extends Command
 
         $this->comment('Updating database schema...');
 
-        $schemaTool->updateSchema($metadata, true);
+        foreach ($queries as $query) {
+            $connection->executeStatement($query);
+        }
 
         $pluralization = (count($queries) > 1) ? 'queries were' : 'query was';
         $this->info('<comment>' . count($queries) . '</comment> ' . $pluralization . ' executed');

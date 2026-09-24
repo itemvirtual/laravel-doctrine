@@ -4,15 +4,13 @@ namespace Itemvirtual\LaravelDoctrine\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
-use Itemvirtual\LaravelDoctrine\Traits\DoctrineFunctions;
+use Itemvirtual\LaravelDoctrine\Schema\ConnectionFactory;
+use Itemvirtual\LaravelDoctrine\Schema\DatabaseMappingWriter;
 use Itemvirtual\LaravelDoctrine\Traits\HelperFunctions;
 use Itemvirtual\LaravelDoctrine\Traits\ValidationFunctions;
 
-
 class DoctrineGenerateMappings extends Command
 {
-    use DoctrineFunctions;
     use HelperFunctions;
     use ValidationFunctions;
 
@@ -21,7 +19,7 @@ class DoctrineGenerateMappings extends Command
      *
      * @var string
      */
-    protected $signature = 'doctrine:generate-mappings 
+    protected $signature = 'doctrine:generate-mappings
                             {--path= : The path where your xml-mapping files will be generated}
                             {--table=* : The database tables to be generated}';
 
@@ -33,43 +31,26 @@ class DoctrineGenerateMappings extends Command
     protected $description = 'Generate xml-mappings from your database';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return mixed
-     * @throws \Doctrine\ORM\ORMException
      */
     public function handle()
     {
-        /**
-         * Validate entities and xml-mappings configuration
-         */
-        if (!$this->validateDirectories()) {
+        if (!$this->validateMappingsPath()) {
             return 0;
         }
 
         $path = $this->option('path');
         $tables = $this->option('table');
 
-        $destinationPath = $path ? $path : config('laravel-doctrine.xml_mappings_path');
+        $destinationPath = $path ?: config('laravel-doctrine.xml_mappings_path');
 
-        foreach ($tables as $k_table => $table) {
-            $tables[$k_table] = ucfirst(Str::camel($table));
+        if (!File::isDirectory($destinationPath)) {
+            File::makeDirectory($destinationPath, 0755, true);
         }
 
-        $files = [];
-        if (File::isDirectory($destinationPath)) {
-            $files = File::files($destinationPath);
-        }
+        $files = File::glob(rtrim($destinationPath, '/') . '/*.dcm.xml');
 
         if (count($files)) {
             if (!$this->confirm('This action will overwrite your existing xml-mappings in <comment>' . $this->getRelativePath($destinationPath) . '</comment>, Do you wish to continue?')) {
@@ -77,19 +58,17 @@ class DoctrineGenerateMappings extends Command
             }
         }
 
-        $parameters = [
-            'to-type' => 'xml',
-            'dest-path' => $destinationPath,
-            'filter' => $tables,
-            '--force' => true,
-            '--from-database' => true,
-        ];
+        $connection = ConnectionFactory::create();
+        $schemaTables = $connection->createSchemaManager()->introspectSchema()->getTables();
 
-        try {
-            $this->call('doctrine:convert-mapping', $parameters);
-        } catch (\Exception $exception) {
-            $this->error($exception->getMessage());
+        $written = (new DatabaseMappingWriter())->write($schemaTables, $destinationPath, $tables);
+
+        if (empty($written)) {
+            $this->info('No matching tables were found.');
+            return 0;
         }
+
+        $this->info('Generated xml-mappings for <comment>' . implode(', ', $written) . '</comment> in <comment>' . $this->getRelativePath($destinationPath) . '</comment>');
 
         return 0;
     }
