@@ -61,14 +61,28 @@ class DoctrineGenerateMappings extends Command
         $connection = ConnectionFactory::create();
         $schemaTables = $connection->createSchemaManager()->introspectSchema()->getTables();
 
-        $written = (new DatabaseMappingWriter())->write($schemaTables, $destinationPath, $tables);
+        $result = (new DatabaseMappingWriter())->write($schemaTables, $destinationPath, $tables);
 
-        if (empty($written)) {
+        if (empty($result['written']) && empty($result['skipped']) && empty($result['manyToMany'])) {
             $this->info('No matching tables were found.');
             return 0;
         }
 
-        $this->info('Generated xml-mappings for <comment>' . implode(', ', $written) . '</comment> in <comment>' . $this->getRelativePath($destinationPath) . '</comment>');
+        if (!empty($result['manyToMany'])) {
+            $summary = [];
+            foreach ($result['manyToMany'] as $joinTable => $owner) {
+                $summary[] = $joinTable . ' as <many-to-many> on ' . $owner;
+            }
+            $this->info('Mapped join tables: <comment>' . implode(', ', $summary) . '</comment>');
+        }
+
+        if (!empty($result['skipped'])) {
+            $this->warn('Skipped <comment>' . implode(', ', $result['skipped']) . '</comment>: looks like a many-to-many join table (a composite primary key made entirely of foreign keys), but its relation could not be worked out automatically. Add it as a <many-to-many> relation on one of the related entities by hand.');
+        }
+
+        if (!empty($result['written'])) {
+            $this->info('Generated xml-mappings for <comment>' . implode(', ', $result['written']) . '</comment> in <comment>' . $this->getRelativePath($destinationPath) . '</comment>');
+        }
 
         return 0;
     }

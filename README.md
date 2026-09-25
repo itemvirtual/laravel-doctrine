@@ -11,6 +11,13 @@ It can update and validate the database against the mappings, and generate xml-m
 Since v2 the package only depends on `doctrine/dbal`. Your `database/doctrine/xml-mappings/*.dcm.xml` files are
 read directly and compared against the current database schema; **no entity classes are generated anymore**.
 
+###### **Important!**
+
+If you're upgrading from v1, your existing xml-mappings may carry stale options left over from its old
+entity-generation round-trip (like `<option name="fixed"/>` on columns that aren't actually fixed-length, or
+a leftover `fetch="LAZY"` attribute that v2 never reads). Run the [`_skills/upgrade-v2-xml.md`](_skills/upgrade-v2-xml.md)
+skill against your mappings before trusting `doctrine:update`'s output.
+
 ## Table of contents
 
 - [Installation](#installation)
@@ -137,7 +144,7 @@ php artisan doctrine:migrations-generate [path] [options]
 Arguments:
 
 ```
-path    Destination path for the generated files [default: tests/database/migrations]
+path    Destination path for the generated files [default: database/migrations]
 ```
 
 Options:
@@ -168,7 +175,7 @@ Use `--merge-foreign-keys` to keep each table's foreign keys in its own migratio
 Laravel migrations:
 
 ``` bash
-php artisan doctrine:migrations-generate database/migrations --merge-foreign-keys
+php artisan doctrine:migrations-generate --merge-foreign-keys
 ```
 
 Tables are reordered so the result is safe to run with `php artisan migrate`. Only genuinely circular foreign keys

@@ -2,25 +2,32 @@
 
 All notable changes to `laravel-doctrine` will be documented in this file
 
+## 2.0.1 - 2026-09-25
+
+Fix collation and foreign key column order in doctrine:update  
+doctrine:generate-mappings corrections
+Added _skills
+
 ## 2.0.0 - 2026-09-24
 
 Rewrite on doctrine/dbal ^4.2, drop doctrine/orm, doctrine/annotations and symfony/cache  
 xml-mappings are read and compared directly, no more entity generation  
-remove doctrine:generate-entities, doctrine:remove-entities, doctrine:convert-mapping, doctrine:clear-cache*
+remove doctrine:generate-entities, doctrine:remove-entities, doctrine:convert-mapping, doctrine:clear-cache*  
+Important: `_skills/upgrade-v2-xml.md`
 
 ## 1.0.7 - 2026-06-12
 
-Add DB_CHARSET config 
+Add DB_CHARSET config
 
 ## 1.0.6 - 2023-03-14
 
-Upgrade for laravel 10 
+Upgrade for laravel 10
 
 ## 1.0.5 - 2022-07-29
 
 update doctrine/orm to 2.12.3  
 add doctrine/annotations  
-add symfony/cache  
+add symfony/cache
 
 ## 1.0.4 - 2022-07-29
 

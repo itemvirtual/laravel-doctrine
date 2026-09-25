@@ -2,6 +2,9 @@
 
 namespace Itemvirtual\LaravelDoctrine\Schema;
 
+use Doctrine\DBAL\Schema\DefaultExpression\CurrentDate;
+use Doctrine\DBAL\Schema\DefaultExpression\CurrentTime;
+use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\Table;
@@ -125,7 +128,7 @@ class SchemaBuilder
         }
 
         if (array_key_exists('default', $mappingOptions)) {
-            $options['default'] = $mappingOptions['default'];
+            $options['default'] = $this->defaultValueOption($mappingOptions['default']);
         }
 
         if (array_key_exists('comment', $mappingOptions)) {
@@ -133,6 +136,26 @@ class SchemaBuilder
         }
 
         return $options;
+    }
+
+    /**
+     * CURRENT_TIMESTAMP/CURRENT_DATE/CURRENT_TIME are recognized as DBAL's expression objects instead of being
+     * passed through as a plain string default: DBAL only treats the bare string as that expression through a
+     * deprecated fallback (string comparison against the platform's own SQL for it), so relying on it would
+     * both trigger a deprecation notice and risk breaking on a future DBAL version.
+     */
+    private function defaultValueOption(mixed $value): mixed
+    {
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        return match ($value) {
+            'CURRENT_TIMESTAMP' => new CurrentTimestamp(),
+            'CURRENT_DATE' => new CurrentDate(),
+            'CURRENT_TIME' => new CurrentTime(),
+            default => $value,
+        };
     }
 
     /**

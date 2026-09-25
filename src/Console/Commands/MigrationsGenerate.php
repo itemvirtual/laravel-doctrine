@@ -16,7 +16,7 @@ class MigrationsGenerate extends Command
      * @var string
      */
     protected $signature = 'doctrine:migrations-generate
-                            {path=tests/database/migrations : Path where migrations will be stored}
+                            {path=database/migrations : Path where migrations will be stored}
                             {--R|remove : Remove previous generated migration files}
                             {--O|output : View migrations package console output}
                             {--S|single-file=false : Generate all migrations in a single file}
@@ -476,7 +476,7 @@ class MigrationsGenerate extends Command
      */
     private function extractForeignKeyStatements(string $foreignKeyMigration)
     {
-        $pattern = '/Schema::table\([\'"][^\'"]+[\'"],\s*function\s*\(Blueprint\s+\$table\)\s*\{\n(.*?)\n\s*\}\);/s';
+        $pattern = '/Schema::table\([\'"][^\'"]+[\'"],\s*function\s*\(Blueprint\s+\$table\)\s*\{\r?\n(.*?)\r?\n\s*\}\);/s';
 
         if (!preg_match($pattern, $foreignKeyMigration, $matches)) {
             return null;
@@ -484,7 +484,7 @@ class MigrationsGenerate extends Command
 
         $statements = [];
 
-        foreach (explode("\n", rtrim($matches[1])) as $line) {
+        foreach (preg_split('/\r\n|\r|\n/', rtrim($matches[1])) as $line) {
             if (trim($line) === '') {
                 continue;
             }
@@ -509,7 +509,7 @@ class MigrationsGenerate extends Command
      */
     private function insertForeignKeyStatements(string $tableMigration, string $foreignKeyStatements)
     {
-        $pattern = '/(Schema::create\([\'"][^\'"]+[\'"],\s*function\s*\(Blueprint\s+\$table\)\s*\{\n.*?\n)(\s*)(\}\);)/s';
+        $pattern = '/(Schema::create\([\'"][^\'"]+[\'"],\s*function\s*\(Blueprint\s+\$table\)\s*\{\r?\n.*?\r?\n)(\s*)(\}\);)/s';
 
         if (!preg_match($pattern, $tableMigration)) {
             return null;
@@ -527,7 +527,7 @@ class MigrationsGenerate extends Command
      */
     private function replaceForeignKeyStatements(string $foreignKeyMigration, string $foreignKeyStatements)
     {
-        $pattern = '/(Schema::table\([\'"][^\'"]+[\'"],\s*function\s*\(Blueprint\s+\$table\)\s*\{\n).*?(\n\s*)(\}\);)/s';
+        $pattern = '/(Schema::table\([\'"][^\'"]+[\'"],\s*function\s*\(Blueprint\s+\$table\)\s*\{\r?\n).*?(\r?\n\s*)(\}\);)/s';
 
         if (!preg_match($pattern, $foreignKeyMigration)) {
             return null;
