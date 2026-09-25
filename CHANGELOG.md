@@ -5,7 +5,7 @@ All notable changes to `laravel-doctrine` will be documented in this file
 ## 2.0.1 - 2026-09-25
 
 Fix collation and foreign key column order in doctrine:update  
-doctrine:generate-mappings corrections
+doctrine:generate-mappings corrections  
 Added _skills
 
 ## 2.0.0 - 2026-09-24
